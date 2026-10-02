@@ -2,12 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cocktailRoutes from './routes/cocktails.js';
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/cocktails', cocktailRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
