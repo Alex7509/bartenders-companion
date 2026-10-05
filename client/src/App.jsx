@@ -5,6 +5,7 @@ import CocktailDetails from './pages/CocktailDetails.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Favorites from './pages/Favorites.jsx';
+import WhatCanIMake from './pages/WhatCanIMake.jsx';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
 
         {!loading && (
           <nav className="nav">
+            <Link to="/what-can-i-make">What can I make?</Link>
             {user ? (
               <>
                <Link to="/favorites">Favorites</Link>
@@ -45,6 +47,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<p className="status">Page not found.</p>} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/what-can-i-make" element={<WhatCanIMake />} />
         </Routes>
       </main>
     </>

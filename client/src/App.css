@@ -189,3 +189,44 @@
 .error {
   color: #ff6b6b;
 }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.chip {
+  padding: 0.5rem 1rem;
+  border: 1px solid #33334a;
+  border-radius: 999px;
+  background: #1e1e2b;
+  color: #f1f1f1;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.chip:hover {
+  border-color: #6c5ce7;
+}
+
+.chip.selected {
+  background: #6c5ce7;
+  border-color: #6c5ce7;
+}
+
+.clear-btn {
+  margin-bottom: 1rem;
+}
+
+section h2 {
+  margin: 2rem 0 1rem;
+}
+
+.missing {
+  margin: 0.5rem 0 0;
+  color: #feca57;
+  font-size: 0.9rem;
+}
