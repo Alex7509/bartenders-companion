@@ -56,15 +56,50 @@
   text-decoration: none;
 }
 
-a.card {
-  display: block;
-  color: inherit;
-  text-decoration: none;
+.card {
+  position: relative;
   transition: transform 0.15s;
 }
 
-a.card:hover {
+.card:hover {
   transform: translateY(-3px);
+}
+
+.card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-link h2 {
+  padding-right: 2rem;
+}
+
+.fav-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #9a9ab0;
+  cursor: pointer;
+}
+
+.fav-btn:hover,
+.fav-btn.active {
+  color: #ff6b81;
+}
+
+.card .fav-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .back {

@@ -59,8 +59,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function toggleFavorite(cocktailId) {
+    const isFavorite = user.favorites.includes(cocktailId);
+
+    const res = await fetch(`${API_URL}/favorites/${cocktailId}`, {
+      method: isFavorite ? 'DELETE' : 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Could not update favorites');
+
+    const favorites = await res.json();
+    setUser((prev) => ({ ...prev, favorites }));
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, toggleFavorite }}>
       {children}
     </AuthContext.Provider>
   );

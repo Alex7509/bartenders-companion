@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import CocktailCard from '../components/CocktailCard.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -47,17 +47,7 @@ function CocktailList() {
 
       <div className="grid">
         {cocktails.map((cocktail) => (
-          <Link
-            key={cocktail._id}
-            to={`/cocktails/${cocktail._id}`}
-            className="card"
-          >
-            <h2>{cocktail.name}</h2>
-            <p>{cocktail.description}</p>
-            <p className="meta">
-              {cocktail.glass} · {cocktail.difficulty}
-            </p>
-          </Link>
+          <CocktailCard key={cocktail._id} cocktail={cocktail} />
         ))}
       </div>
     </>

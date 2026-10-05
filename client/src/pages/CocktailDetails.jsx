@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import FavoriteButton from '../components/FavoriteButton.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -42,7 +43,10 @@ function CocktailDetails() {
     <article className="details">
       <Link to="/" className="back">← Back to all cocktails</Link>
 
-      <h1>{cocktail.name}</h1>
+      <div className="title-row">
+        <h1>{cocktail.name}</h1>
+        <FavoriteButton cocktailId={cocktail._id} />
+      </div>
       <p>{cocktail.description}</p>
       <p className="meta">
         {cocktail.glass} · {cocktail.difficulty}
