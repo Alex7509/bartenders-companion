@@ -1,5 +1,6 @@
 import express from 'express';
 import Cocktail from '../models/Cocktail.js';
+import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.get('/:id', async (req, res) => {
 });
 
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) =>  {
   try {
     const cocktail = await Cocktail.create(req.body);
     res.status(201).json(cocktail);
