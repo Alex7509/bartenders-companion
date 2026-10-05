@@ -10,10 +10,9 @@ function createToken(user) {
   return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 }
 
-// Регистрация
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, favorites } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
@@ -41,10 +40,9 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Вход
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, favorites } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -66,7 +64,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Кой съм аз (защитен маршрут)
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-password');
