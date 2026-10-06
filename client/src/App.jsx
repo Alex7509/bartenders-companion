@@ -1,3 +1,4 @@
+import './App.css';
 import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import CocktailList from './pages/CocktailList.jsx';
@@ -6,7 +7,8 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Favorites from './pages/Favorites.jsx';
 import WhatCanIMake from './pages/WhatCanIMake.jsx';
-import './App.css';
+import AddCocktail from './pages/AddCocktail.jsx';
+
 
 function App() {
   const { user, loading, logout } = useAuth();
@@ -23,7 +25,8 @@ function App() {
             <Link to="/what-can-i-make">What can I make?</Link>
             {user ? (
               <>
-               <Link to="/favorites">Favorites</Link>
+                <Link to="/add">Add recipe</Link>
+                <Link to="/favorites">Favorites</Link>
                 <span>Hi, {user.username}</span>
                 <button className="link-btn" onClick={logout}>
                   Logout
@@ -48,6 +51,7 @@ function App() {
           <Route path="*" element={<p className="status">Page not found.</p>} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/what-can-i-make" element={<WhatCanIMake />} />
+          <Route path="/add" element={<AddCocktail />} />
         </Routes>
       </main>
     </>
