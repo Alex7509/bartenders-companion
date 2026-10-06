@@ -25,6 +25,66 @@ A full-stack cocktail recipe app built with React, Node.js, Express and MongoDB.
 |---|---|
 | <img width="1920" height="1032" alt="Add" src="https://github.com/user-attachments/assets/09118603-4a6c-4fac-8368-d5540478cc6b" /> | <img width="1920" height="1032" alt="Favorite" src="https://github.com/user-attachments/assets/7f30ee3d-2473-4595-94b3-b3e77d6dc3cb" /> |
 
-
+## Getting started
+ 
+### Prerequisites
+ 
+- Node.js 18 or newer
+- A MongoDB database: a local MongoDB server or a free MongoDB Atlas cluster
+### 1. Clone the repository
+ 
+```bash
+git clone https://github.com/Alex7509/bartenders-companion.git
+cd bartenders-companion
+```
+ 
+### 2. Set up the backend
+ 
+```bash
+cd server
+npm install
+```
+ 
+Create a `.env` file in `server/` (use `.env.example` as a template):
+ 
+```
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/bartenders-companion
+JWT_SECRET=replace-with-a-long-random-string
+```
+ 
+Fill the database with sample data and start the server:
+ 
+```bash
+npm run seed
+npm run dev
+```
+ 
+> ⚠️ `npm run seed` **deletes** all existing cocktails and ingredients before inserting the sample data, and clears every user's favorites. Do not run it against a database that holds data you want to keep.
+ 
+The API runs on `http://localhost:5000`. Check `http://localhost:5000/api/health`.
+ 
+### 3. Set up the frontend
+ 
+In a second terminal:
+ 
+```bash
+cd client
+npm install
+```
+ 
+Create a `.env` file in `client/` (use `.env.example` as a template):
+ 
+```
+VITE_API_URL=http://localhost:5000/api
+```
+ 
+Start the app:
+ 
+```bash
+npm run dev
+```
+ 
+Open `http://localhost:5173`.
 
 
