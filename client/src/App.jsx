@@ -8,6 +8,7 @@ import Register from './pages/Register.jsx';
 import Favorites from './pages/Favorites.jsx';
 import WhatCanIMake from './pages/WhatCanIMake.jsx';
 import AddCocktail from './pages/AddCocktail.jsx';
+import EditCocktail from './pages/EditCocktail.jsx';
 
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/what-can-i-make" element={<WhatCanIMake />} />
           <Route path="/add" element={<AddCocktail />} />
+          <Route path="/cocktails/:id/edit" element={<EditCocktail />} />
         </Routes>
       </main>
     </>
