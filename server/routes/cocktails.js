@@ -1,8 +1,24 @@
 import express from 'express';
 import Cocktail from '../models/Cocktail.js';
 import auth from '../middleware/auth.js';
+import Ingredient from '../models/Ingredient.js';
 
 const router = express.Router();
+
+async function findOrCreateIngredient(rawName) {
+  const name = rawName.trim();
+
+  let ingredient = await Ingredient.findOne({ name }).collation({
+    locale: 'en',
+    strength: 2,
+  });
+
+  if (!ingredient) {
+    ingredient = await Ingredient.create({ name });
+  }
+
+  return ingredient._id;
+}
 
 router.get('/', async (req, res) => {
   try {
@@ -60,10 +76,48 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', auth, async (req, res) => {
   try {
-    const cocktail = await Cocktail.create(req.body);
+    const { name, description, glass, difficulty, ingredients, instructions } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
+    const rows = Array.isArray(ingredients) ? ingredients : [];
+    if (rows.length === 0 || rows.some((r) => !r.name?.trim() || !r.amount?.trim())) {
+      return res
+        .status(400)
+        .json({ message: 'Each ingredient needs a name and an amount' });
+    }
+
+    const steps = Array.isArray(instructions)
+      ? instructions.map((s) => String(s).trim()).filter(Boolean)
+      : [];
+    if (steps.length === 0) {
+      return res.status(400).json({ message: 'Add at least one instruction step' });
+    }
+
+    const resolved = [];
+    for (const row of rows) {
+      resolved.push({
+        ingredient: await findOrCreateIngredient(row.name),
+        amount: row.amount.trim(),
+      });
+    }
+
+    const cocktail = await Cocktail.create({
+      name: name.trim(),
+      description: description?.trim() || '',
+      glass: glass?.trim() || '',
+      difficulty,
+      ingredients: resolved,
+      instructions: steps,
+      createdBy: req.userId,
+    });
+
     res.status(201).json(cocktail);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    const status = err.name === 'ValidationError' ? 400 : 500;
+    res.status(status).json({ message: err.message });
   }
 });
 
