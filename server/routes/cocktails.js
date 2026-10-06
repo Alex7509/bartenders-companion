@@ -1,7 +1,9 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Cocktail from '../models/Cocktail.js';
-import auth from '../middleware/auth.js';
 import Ingredient from '../models/Ingredient.js';
+import User from '../models/User.js';
+import auth from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -18,6 +20,65 @@ async function findOrCreateIngredient(rawName) {
   }
 
   return ingredient._id;
+}
+
+async function parseCocktailBody(body) {
+  const { name, description, glass, difficulty, ingredients, instructions } = body;
+
+  if (!name?.trim()) {
+    return { error: 'Name is required' };
+  }
+
+  const rows = Array.isArray(ingredients) ? ingredients : [];
+  if (rows.length === 0 || rows.some((r) => !r.name?.trim() || !r.amount?.trim())) {
+    return { error: 'Each ingredient needs a name and an amount' };
+  }
+
+  const steps = Array.isArray(instructions)
+    ? instructions.map((s) => String(s).trim()).filter(Boolean)
+    : [];
+  if (steps.length === 0) {
+    return { error: 'Add at least one instruction step' };
+  }
+
+  const resolved = [];
+  for (const row of rows) {
+    resolved.push({
+      ingredient: await findOrCreateIngredient(row.name),
+      amount: row.amount.trim(),
+    });
+  }
+
+  return {
+    data: {
+      name: name.trim(),
+      description: description?.trim() || '',
+      glass: glass?.trim() || '',
+      difficulty: difficulty || 'easy',
+      ingredients: resolved,
+      instructions: steps,
+    },
+  };
+}
+
+async function getOwnedCocktail(req, res) {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    res.status(400).json({ message: 'Invalid id' });
+    return null;
+  }
+
+  const cocktail = await Cocktail.findById(req.params.id);
+  if (!cocktail) {
+    res.status(404).json({ message: 'Cocktail not found' });
+    return null;
+  }
+
+  if (cocktail.createdBy?.toString() !== req.userId) {
+    res.status(403).json({ message: 'You can only change your own recipes' });
+    return null;
+  }
+
+  return cocktail;
 }
 
 router.get('/', async (req, res) => {
@@ -73,51 +134,51 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
 router.post('/', auth, async (req, res) => {
   try {
-    const { name, description, glass, difficulty, ingredients, instructions } = req.body;
+    const { error, data } = await parseCocktailBody(req.body);
+    if (error) return res.status(400).json({ message: error });
 
-    if (!name?.trim()) {
-      return res.status(400).json({ message: 'Name is required' });
-    }
-
-    const rows = Array.isArray(ingredients) ? ingredients : [];
-    if (rows.length === 0 || rows.some((r) => !r.name?.trim() || !r.amount?.trim())) {
-      return res
-        .status(400)
-        .json({ message: 'Each ingredient needs a name and an amount' });
-    }
-
-    const steps = Array.isArray(instructions)
-      ? instructions.map((s) => String(s).trim()).filter(Boolean)
-      : [];
-    if (steps.length === 0) {
-      return res.status(400).json({ message: 'Add at least one instruction step' });
-    }
-
-    const resolved = [];
-    for (const row of rows) {
-      resolved.push({
-        ingredient: await findOrCreateIngredient(row.name),
-        amount: row.amount.trim(),
-      });
-    }
-
-    const cocktail = await Cocktail.create({
-      name: name.trim(),
-      description: description?.trim() || '',
-      glass: glass?.trim() || '',
-      difficulty,
-      ingredients: resolved,
-      instructions: steps,
-      createdBy: req.userId,
-    });
-
+    const cocktail = await Cocktail.create({ ...data, createdBy: req.userId });
     res.status(201).json(cocktail);
   } catch (err) {
     const status = err.name === 'ValidationError' ? 400 : 500;
     res.status(status).json({ message: err.message });
+  }
+});
+
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const cocktail = await getOwnedCocktail(req, res);
+    if (!cocktail) return;
+
+    const { error, data } = await parseCocktailBody(req.body);
+    if (error) return res.status(400).json({ message: error });
+
+    Object.assign(cocktail, data);
+    await cocktail.save();
+
+    res.json(cocktail);
+  } catch (err) {
+    const status = err.name === 'ValidationError' ? 400 : 500;
+    res.status(status).json({ message: err.message });
+  }
+});
+
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const cocktail = await getOwnedCocktail(req, res);
+    if (!cocktail) return;
+
+    await cocktail.deleteOne();
+    await User.updateMany(
+      { favorites: cocktail._id },
+      { $pull: { favorites: cocktail._id } }
+    );
+
+    res.json({ message: 'Cocktail deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
